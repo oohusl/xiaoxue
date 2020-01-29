@@ -1,1 +1,283 @@
 
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.slim.min.js"
+      integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"
+      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div
+      class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"
+    >
+      <h5 class="my-0 mr-md-auto font-weight-normal">学习中心</h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="#">数据</a>
+        <a class="p-2 text-dark" href="#">语文</a>
+        <a class="p-2 text-dark" href="#">英语</a>
+      </nav>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <button type="button" id="bt1" class="btn btn-lg btn-primary">
+            每日题目
+          </button>
+          <button type="button" id="bt2" class="btn btn-lg btn-success">
+            加减法
+          </button>
+          <button type="button" id="bt3" class="btn btn-lg btn-danger">
+            心算测试
+          </button>
+          <div class="jumbotron" id="p1"></div>
+          <div class="jumbotron" id="p2">
+            <div class="row">
+              <div class="col-sm">
+                <p>倒计时：<span id="timer"></span></p>
+                <span id="q"></span> = <input type="number" id="result" />
+
+                <p id="rr"></p>
+              </div>
+              <div class="col-sm">
+                <button
+                  type="button"
+                  id="bt4"
+                  class="btn btn-lg btn-warning btn-block"
+                  style="height: 200px;"
+                >
+                  确定
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="pt-4 my-md-5 pt-md-5 border-top"></footer>
+    </div>
+  </body>
+  <script>
+    $(() => {
+      var t = 0;
+      var r = 0;
+      var w = 0;
+      $("#bt3").click(() => {
+        $("#p1").hide();
+        $("#p2").show();
+
+        r = 0;
+        w = 0;
+        $("#rr").html("");
+        $("#q").text(addSub());
+        var start = 0;
+        var end = 100;
+        clearInterval(t);
+        t = setInterval(() => {
+          $("#timer").text(end - ++start);
+
+          if (start >= end) {
+            clearInterval(t);
+            alert(`正确: ${r}, 错误: ${w}`);
+          }
+        }, 1000);
+      });
+      $("#bt4").click(() => {
+        if (!$("#result").val()) {
+          return;
+        }
+        if (window.eval($("#q").text()) == $("#result").val()) {
+          ++r;
+          $("#rr").append(
+            "<div>" + $("#q").text() + "=" + $("#result").val() + "</div>"
+          );
+        } else {
+          ++w;
+          $("#rr").append(
+            "<div>" +
+              $("#q").text() +
+              " = " +
+              $("#result").val() +
+              `  <span>错！${window.eval($("#q").text())}</span></div>`
+          );
+        }
+        $("#q").text(addSub());
+        $("#result").val("");
+        $("#result").focus();
+      });
+      $("#bt1").click(() => {
+        $("#p2").hide();
+        $("#p1").show();
+        var qs = getQuestion();
+        $("#p1").html("");
+        for (var i = 0; i < qs.length; ++i) {
+          $("#p1").append(
+            `<p>${i + 1}. ${qs[i].replace("/", "÷").replace("*", "×")}</p>`
+          );
+        }
+      });
+
+      $("#bt2").click(() => {
+        $("#p2").hide();
+        $("#p1").show();
+        $("#p1").html("");
+        for (var i = 0; i < 10; ++i) {
+          var a = num100(20);
+          var b = num100(20);
+
+          if (rr()) {
+            var c = a + b;
+            $("#p1").append(`<p>${i + 1}. ${a} + ${b} = <i>${c}</i></p>`);
+          } else {
+            var c = Math.abs(a - b);
+            if (a < b) {
+              var t = b;
+              b = a;
+              a = t;
+            }
+            $("#p1").append(`<p>${i + 1}. ${a} - ${b} = <i>${c}</i></p>`);
+          }
+        }
+      });
+    });
+
+    function rr(m = 2) {
+      return num100() % 2 == 0;
+    }
+    function num10(m = 3) {
+      var a = Math.ceil((Math.random() * 100) / 10);
+      while (a < m || a == 10) {
+        a = Math.ceil((Math.random() * 100) / 10);
+      }
+      return a;
+    }
+
+    function num100(m = 3) {
+      var a = Math.ceil(Math.random() * 100);
+      while (a <= m || a == 100) {
+        a = Math.ceil(Math.random() * 100);
+      }
+      return a;
+    }
+
+    function multi() {
+      var a = num10();
+      var b = num10();
+      return `${a} * ${b}`;
+    }
+
+    function division1() {
+      while (true) {
+        var b = num10(5);
+        var a = num100(b);
+        if (a / b < 10) {
+          return `${a} / ${b}`;
+        }
+      }
+    }
+
+    function division2() {
+      var a = num10();
+      var b = num10();
+      return `${a * b} / ${b}`;
+    }
+
+    function four1() {
+      var a = num100() % 2 === 0 ? division2() : multi();
+      var b = num100();
+      if (num100() % 2 === 0) {
+        return `${b} + ${a}`;
+      } else if (window.eval(a) > b) {
+        return `${a} - ${b}`;
+      } else {
+        return `${b} - ${a}`;
+      }
+    }
+
+    function addSub() {
+      var a = num100(20);
+      var b = num100(20);
+
+      if (rr()) {
+        var c = a + b;
+        return `${a} + ${b}`;
+      } else {
+        var c = Math.abs(a - b);
+        if (a < b) {
+          var t = b;
+          b = a;
+          a = t;
+        }
+        return `${a} - ${b}`;
+      }
+    }
+
+    function four2() {
+      var a = num100() % 2 === 0 ? "*" : "/";
+      if (num100() % 2 === 0) {
+        var a = num10();
+        var b = num10();
+        return `${a} * (  ) = ${a * b}`;
+      } else {
+        var b = num10();
+
+        var a = num100(b);
+        return `(  ) / ${b} = ${Math.floor(a / b)}  ${
+          a % b !== 0 ? " ...... " + (a % b) : ""
+        }`;
+      }
+    }
+
+    function getQuestion() {
+      var q = [];
+      q.push(multi(), multi());
+      q.push(division1(), division2());
+
+      q.push(four1(), four1());
+      q.push(four2(), four2());
+
+      var oper = ["+", "-", "*"];
+      for (var j = 0; j < 2; ) {
+        var a = Math.ceil(Math.random() * 100);
+        var b = Math.ceil(Math.random() * a);
+        var c = Math.ceil(Math.random() * a);
+        var d = oper[Math.ceil(Math.random() * 100) % 2];
+        var e = oper[Math.ceil(Math.random() * 100) % 2];
+
+        if (a > 10 && b > 10 && c > 10) {
+          if (
+            window.eval(a + d + b) > 0 &&
+            window.eval(a + d + b + e + c) > 0
+          ) {
+            q.push(a + d + b + e + c);
+            ++j;
+          }
+        }
+      }
+      return q;
+    }
+  </script>
+</html>
